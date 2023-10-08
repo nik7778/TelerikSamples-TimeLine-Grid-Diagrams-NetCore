@@ -1,0 +1,151 @@
+﻿@using Kendo.Mvc.UI
+@using LS.ForensicFileTimeline.Entities
+
+@model IEnumerable<Record>
+
+@{
+    ViewData["Title"] = "Grid Sample";
+}
+
+<h3>Details for files created at @ViewBag.Date </h3>
+
+@(Html.Kendo().Grid<FileModel>()
+    .Name("Grid1")
+    .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .PageSize(30)
+                .ServerOperation(false)
+                .Events(events => events.Error("error_handler"))
+                .Read(read => read.Action("Record_Read", "Grid", new { date = ViewBag.Date }))
+                .Update(read => read.Action("Record_Update", "Grid"))
+    )
+    .Events(events => events.Change("showDetails"))
+    .ToolBar(toolbar =>
+    {
+        toolbar.Search();
+        toolbar.Save();
+        toolbar.Pdf();
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Item).Width(50);
+        columns.Bound(p => p.Created).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.FileName).Width(50);
+        columns.Bound(p => p.Extension).Width(30);
+        columns.Bound(p => p.Modified).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Accessed).Format("{0: MM-dd-yyyy}").Width(70);
+        columns.Bound(p => p.Category).Width(70);
+        columns.Bound(p => p.Path).Width(200);
+        columns.Bound(p => p.PSize).Width(50);
+        columns.Bound(p => p.LSize).Width(50);
+        columns.Bound(p => p.MD5).Width(50);
+    })
+    .Editable(editable => editable.Enabled(false))
+    .Pageable(pager => pager.Refresh(true))
+    .Navigatable()
+    .Sortable()
+    .Resizable(resize => resize.Columns(true))
+    .Filterable(x => x.Enabled(true))
+    .Groupable(x => x.Enabled(true))
+    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+    .Scrollable()
+    .HtmlAttributes(new { style = "height:1000px;" })
+)
+
+<div class="row">
+    <div class="col-md-6">
+        <label style="font-weight:700;display:block;padding-top:40px;">Grid Settings:</label>
+        <div style="display:block;padding:10px 0;">
+            <ul class="fieldlist" style="display:inline-block">
+                <li>
+                    @(Html.Kendo().CheckBox()
+                    .Name("eq2")
+                    .Checked(false).Label("Editable mode"))
+                </li>
+                <li>
+                    @(Html.Kendo().CheckBox()
+                    .Name("eq3")
+                    .Checked(true).Label("Filterable mode"))
+                </li>
+            </ul>
+            <ul class="fieldlist" style="display:inline-block">
+                <li>
+                    @(Html.Kendo().CheckBox()
+                    .Name("eq4")
+                    .Checked(true).Label("Groupable mode"))
+                </li>
+                <li>
+                    @(Html.Kendo().CheckBox()
+                    .Name("eq5")
+                    .Checked(true).Label("Show toolbar buttons"))
+                </li>
+            </ul>
+            <ul class="fieldlist" style="display:inline-block">
+                <li>
+                    @(Html.Kendo().CheckBox()
+                    .Name("eq6")
+                    .Checked(true).Label("Show search panel"))
+                </li>
+            </ul>
+        </div>      
+    </div>
+    <div class="col-md-6">
+        <div id="rowDetails"></div>
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+    <div class="refreshBtnContainer">
+        <a id="btnRefresh" href="\\#" class="k-pager-refresh k-link k-button k-button-icon" title="Refresh"><span class="k-icon k-i-reload"></span></a>
+    </div>
+</script>
+
+<script id="template" type="text/java">
+    @(Html.Kendo().TabStrip()
+      .Name("tabStrip_#=Date#_#=Time#")
+      .SelectedIndex(0)
+      .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+      .Items(items =>
+      {
+          items.Add().Text("Details").Content(
+          "<div class='employee-details'>" +
+             "<ul>" +
+                 "<li><label>Item:</label>#= Item #</li>" +
+                 "<li><label>Created:</label>#= Created #</li>" +
+                 "<li><label>FileName:</label>#= FileName #</li>" +
+                 "<li><label>Extension:</label>#= Extension #<li>" +
+                 "<li><label>Modified:</label>#= Modified #<li>" +
+                 "<li><label>Accessed:</label>#= Accessed #<li>" +
+                 "<li><label>Category:</label>#= Category #<li>" +
+                 "<li><label>Path:</label>#= Path #<li>" +
+                 "<li><label>PSize:</label>#= PSize #<li>" +
+                 "<li><label>LSize:</label>#= LSize #<li>" +
+                 "<li><label>MD5:</label>#= MD5 #<li>" +
+             "</ul>" +
+         "</div>"
+     );
+}).ToClientTemplate())
+</script>
+
+<script src="~/js/script.js?v=1.0.0.0.1.1"></script>
+
+<script type="text/javascript">
+showDetails = function (e) {
+    var selected = $.map(this.select(), function (item) {
+        return $(item).children().first().text();
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: '@Url.Action("Details", "Grid")',
+        data: { id: selected[0] },
+        dataType: 'html',
+        success: function (data) {
+            $('#rowDetails').html(data);
+        },
+        error: function (ex) {
+        }
+    });
+};
+</script>

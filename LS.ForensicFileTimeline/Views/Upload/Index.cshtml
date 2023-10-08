@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+<div class="demo-section k-content">
+    <h4>Upload XLSX file</h4>
+    @(Html.Kendo().Upload()
+        .Name("files")
+        .Async(a => a
+            .Save("Validation_Save", "Upload")
+            .Remove("Validation_Remove", "Upload")
+            .SaveField("files")
+        )
+        .Validation(validation => validation.AllowedExtensions(new string[] { ".csv" }))
+    )
+    <div class="demo-hint">You can only upload <strong>CSV</strong> files.</div>  
+</div>
+

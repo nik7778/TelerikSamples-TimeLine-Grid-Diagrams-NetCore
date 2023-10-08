@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "GridPartial";
+}
+
+@(Html.Kendo().Grid<FileModel>()
+    .Name("Grid1")
+    .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .PageSize(30)
+                .ServerOperation(false)
+                .Read(read => read.Action("Record_Read", "LastAccessed", new { date = ViewBag.Date, img = ViewBag.Images, vid = ViewBag.Videos, other = ViewBag.Other, path = ViewBag.Path }))
+    )
+    .ToolBar(toolbar =>
+    {
+        toolbar.Search();
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.FileName).Width(50);
+        columns.Bound(p => p.Extension).Width(30);
+        columns.Bound(p => p.LSize).Width(50);
+        columns.Bound(p => p.PSize).Width(50);
+        columns.Bound(p => p.Created).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Modified).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Accessed).Format("{0: MM-dd-yyyy}").Width(70);
+        columns.Bound(p => p.Path).Width(200);
+        columns.Bound(p => p.Item).Width(50);
+    })
+    .Editable(editable => editable.Enabled(false))
+    .Pageable(pager => pager.Refresh(true).Messages(m => m.Display("Total records: {2}")))
+    .Navigatable()
+    .Sortable()
+    .Resizable(resize => resize.Columns(true))
+    .Filterable(x => x.Enabled(true))
+    .Groupable(x => x.Enabled(true))
+    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+    .Scrollable()
+    .HtmlAttributes(new { style = "height:1000px;" })
+)

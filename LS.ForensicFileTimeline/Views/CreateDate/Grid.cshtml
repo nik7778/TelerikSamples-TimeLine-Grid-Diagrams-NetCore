@@ -1,0 +1,171 @@
+﻿@using Kendo.Mvc.UI
+@using LS.ForensicFileTimeline.Entities
+
+@model IEnumerable<FileModel>
+@{
+    ViewData["Title"] = "Grid Sample";
+}
+<div style="display:inline-block">
+    <label style="font-weight:700;display:block;padding-top:40px;">Total Files by Date:</label>
+    <ul class="fieldlist" style="display:inline-block">
+        <li>
+            @(Html.Kendo().CheckBox().Name("gr1").HtmlAttributes(new { @class="gridChk" })
+                                .Checked(true).Label("Images")) (@ViewBag.ImagesPrecent %)
+        </li>
+        <li>
+            @(Html.Kendo().CheckBox().Name("gr2").HtmlAttributes(new { @class = "gridChk" })
+                                .Checked(true).Label("Videos")) (@ViewBag.VideosPrecent %)
+        </li>
+        <li>
+            @(Html.Kendo().CheckBox().Name("gr3").HtmlAttributes(new { @class = "gridChk" })
+                                .Checked(true).Label("Other")) (@ViewBag.OtherPrecent %)
+        </li>
+    </ul>
+</div>
+<div style="display:inline-block">
+    @(Html.Kendo().Chart()
+        .Name("chart3")
+        .HtmlAttributes(new { style = "z-index:1003;" })
+        .Legend(legend => legend
+            .Visible(false)
+        )
+        .ChartArea(chart => chart
+            .Background("transparent")
+         )
+        .HtmlAttributes(new { style = "margin-top: -100px; height:250px;" })
+        .Series(series => {
+            series.Pie(new dynamic[] {
+                new {category="Images",value=ViewBag.ImagesPrecent,color="#9de219"},
+                new {category="Videos",value=ViewBag.VideosPrecent,color="#90cc38"},
+                new {category="Other",value=ViewBag.OtherPrecent,color="#068c35"}
+            })
+            .Labels(labels => labels
+                .Template("#= category #: \n #= value#%")
+                .Background("transparent")
+                .Visible(true)
+            )
+            .StartAngle(50);
+        })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category # : #= value #%")
+        )
+    )
+</div>
+<div style="display:inline-block">
+    @(Html.Kendo().Chart()
+            .Name("chart4")
+            .HtmlAttributes(new { style = "z-index:1003;" })
+            .Legend(legend => legend
+                .Visible(false)
+            )
+            .ChartArea(chart => chart
+                .Background("transparent")
+            )
+            .HtmlAttributes(new { style = "margin-top: -100px; height:250px;" })
+            .Series(series => {
+                series.Pie(new dynamic[] {
+                    new {category="Image JPEG",value=ViewBag.Img0,color="#9de219"},
+                    new {category="Image JPEG EXIF",value=ViewBag.Img1,color="#6495ED"},
+                    new {category="Image PNG",value=ViewBag.Img2,color="#FF7F50"},
+                    new {category="Image GIF",value=ViewBag.Img3,color="#8FBC8F"},
+                    new {category="Video Riff Avi",value=ViewBag.Vid0,color="#00CED1"},
+                    new {category="Video Windows Media",value=ViewBag.Vid1,color="#7CFC00"},
+                    new {category="Video MPEG",value=ViewBag.Vid2,color="#20B2AA"},
+                    new {category="Other files",value=ViewBag.Other,color="#90EE90"}
+                })
+                .Labels(labels => labels
+                    .Template("#= category #: \n #= value#%")
+                    .Position(ChartSeriesLabelsPosition.OutsideEnd)
+                    .Background("transparent")
+                    .Visible(true)
+                )
+                .StartAngle(50);
+            })
+            .Tooltip(tooltip => tooltip
+                .Visible(true)
+                .Template("#= category # : #= value #")
+            )
+        )
+</div>
+
+<h3>Details for files created at @ViewBag.Date</h3>
+
+<div id="grid-div">
+    @(Html.Kendo().Grid<FileModel>()
+    .Name("Grid1")
+    .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .PageSize(30)
+                .ServerOperation(false)
+                .Read(read => read.Action("Record_Read", "CreateDate", new { date = ViewBag.Date, img = true, vid = true, other = true, path = ViewBag.Path }))
+    )
+    .ToolBar(toolbar =>
+    {
+        toolbar.Search();
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.FileName).Width(50);
+        columns.Bound(p => p.Extension).Width(30);
+        columns.Bound(p => p.LSize).Width(50);
+        columns.Bound(p => p.PSize).Width(50);
+        columns.Bound(p => p.Created).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Modified).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Accessed).Format("{0: MM-dd-yyyy}").Width(70);
+        columns.Bound(p => p.Path).Width(200);
+        columns.Bound(p => p.Item).Width(50);
+    })
+    .Editable(editable => editable.Enabled(false))
+    .Pageable(pager => pager.Refresh(true).Messages(m => m.Display("Total records: {2}")))
+    .Navigatable()
+    .Sortable()
+    .Resizable(resize => resize.Columns(true))
+    .Filterable(x => x.Enabled(true))
+    .Groupable(x => x.Enabled(true))
+    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+    .Scrollable()
+    .HtmlAttributes(new { style = "height:1000px;" })
+)
+</div>
+<script src="~/js/script.js?v=1.0.0.0.1.1"></script>
+
+<script type="text/javascript">
+$(".gridChk").on("change", function () {
+    var v1 = false;
+    var v2 = false;
+    var v3 = false;
+    
+    if ($('#gr1').is(":checked")) { v1 = true; }
+    if ($('#gr2').is(":checked")) { v2 = true; }
+    if ($('#gr3').is(":checked")) { v3 = true; }
+    var date = '@ViewBag.Date';
+    var path = $("#textbox").val();
+    $.ajax({
+        type: 'GET',
+        url: '@Url.Action("GridPartial", "CreateDate")',
+        data: { "date": date, "v1": v1, "v2": v2, "v3": v3, "path": path },
+        dataType: 'html',
+        success: function (data) {
+            $('#grid-div').html(data);
+        },
+        error: function () {
+        }
+    });
+});
+
+function error_handler(e) {
+    if (e.errors) {
+        var message = "Errors:\n";
+        $.each(e.errors, function (key, value) {
+            if ('errors' in value) {
+                $.each(value.errors, function () {
+                    message += this + "\n";
+                });
+            }
+        });
+        alert(message);
+    }
+}
+</script>

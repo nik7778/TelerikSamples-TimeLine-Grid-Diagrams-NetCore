@@ -1,0 +1,71 @@
+﻿@using Kendo.Mvc.UI
+@using LS.ForensicFileTimeline.Entities
+
+@model IEnumerable<Record>
+
+@{
+    ViewData["Title"] = "Grid Sample";
+}
+
+
+<h3>Folder: @ViewBag.Folder </h3>
+
+@(Html.Kendo().Grid<FileModel>()
+    .Name("Grid1")
+    .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .PageSize(30)
+                .ServerOperation(false)
+                //.Events(events => events.Error("error_handler"))
+                .Read(read => read.Action("Record_Read", "Grid", new { folder = ViewBag.Folder, path = ViewBag.Path }))                
+    )
+    //.Events(events => events.Change("showDetails"))
+    .ToolBar(toolbar =>
+    {
+        toolbar.Search();
+        toolbar.Save();
+        toolbar.Pdf();
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.FileName).Width(50);
+        columns.Bound(p => p.Extension).Width(30);
+        columns.Bound(p => p.LSize).Width(50);
+        columns.Bound(p => p.PSize).Width(50);
+        columns.Bound(p => p.Created).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Modified).Format("{0: MM-dd-yyyy}").Width(50);
+        columns.Bound(p => p.Accessed).Format("{0: MM-dd-yyyy}").Width(70);
+        columns.Bound(p => p.Path).Width(200);
+        columns.Bound(p => p.Item).Width(50);
+    })
+    .Editable(editable => editable.Enabled(false))
+    .Pageable(pager => pager.Refresh(true))
+    .Navigatable()
+    .Sortable()
+    .Resizable(resize => resize.Columns(true))
+    .Filterable(x => x.Enabled(true))
+    .Groupable(x => x.Enabled(true))
+    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+    .Scrollable()
+    .HtmlAttributes(new { style = "height:1000px;" })
+)
+
+<script src="~/js/script.js?v=1.0.0.0.1.1"></script>
+
+<script type="text/javascript">
+
+function error_handler(e) {
+    if (e.errors) {
+        var message = "Errors:\n";
+        $.each(e.errors, function (key, value) {
+            if ('errors' in value) {
+                $.each(value.errors, function () {
+                    message += this + "\n";
+                });
+            }
+        });
+        alert(message);
+    }
+}
+</script>

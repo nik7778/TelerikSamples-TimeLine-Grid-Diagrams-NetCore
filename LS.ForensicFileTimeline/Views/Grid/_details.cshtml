@@ -1,0 +1,25 @@
+﻿@model LS.ForensicFileTimeline.Models.FileModel
+<div id="main-div" class="details">
+    <h4 style="margin-left:40px;">Details</h4>
+    <button class="btn btn-info" style="float:right;margin-top:-30px;margin-right:30px;" id="hideDetails">Hide</button>
+    <div class='employee-details'>
+        <ul>
+            <li><label>Item:</label>@Model.Item</li>
+            <li><label>Created:</label>@Model.Created</li>
+            <li><label>FileName:</label>@Model.FileName</li>
+            <li><label>Extension:</label>@Model.Extension</li>
+            <li><label>Modified:</label>@Model.Modified</li>
+            <li><label>Accessed:</label>@Model.Accessed</li>
+            <li><label>Category:</label>@Model.Category</li>
+            <li><label>Path:</label>@Model.Path</li>
+            <li><label>PSize:</label>@Model.PSize</li>
+            <li><label>LSize:</label>@Model.LSize</li>
+            <li><label>MD5:</label>@Model.MD5</li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#hideDetails").on("click", function () {
+        $('#main-div').css('display', 'none');
+    });
+</script>

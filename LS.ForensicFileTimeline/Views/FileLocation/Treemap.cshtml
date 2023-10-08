@@ -1,0 +1,39 @@
+﻿@(Html.Kendo().TreeMap()
+      .Name("treeMap")
+      .DataSource(dataSource => dataSource
+          .Read(read => read
+              .Action("Files", "FileLocation", new { path = ViewBag.Path })
+          )
+          .Model(m => m.Children("Items"))
+      )
+      .ValueField("Value")
+      .TextField("Name")
+      .HtmlAttributes(new { style = "height:600px; font-size: 12px;" })
+)
+
+<script>
+
+$("#treeMap").on("click", ".k-treemap-tile", function(e){
+    // prevent the propagation of the click event to the parent (category)
+    e.stopPropagation();
+    var tile = $(this);
+    //access the uid of the rendered tile
+    var uid = tile.data().uid;
+    var ds = $("#treeMap").data("kendoTreeMap").dataSource;
+    // find the data item by its uid
+    var path = $("#textbox").val();
+    var dataItem = ds.getByUid(uid);
+    $.ajax({
+        type: 'GET',
+        url: '@Url.Action("Grid", "Grid")',
+        data: { "folder": path + dataItem.Name, "path": path },
+        dataType: 'html',
+        success: function (data) {
+            $('#grid').html(data);
+        },
+        error: function () {
+        }
+    });
+});
+
+</script>

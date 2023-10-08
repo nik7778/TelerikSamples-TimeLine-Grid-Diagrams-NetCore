@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    #top-content {
+        margin-bottom: 50px;
+    }
+
+    #vertical {
+        height: 780px;
+    }
+
+    #middle-pane {
+        color: #000;
+        background-color: #fff;
+    }
+
+    #top-pane {
+        color: #000;
+        background-color: #fff;
+    }
+
+    #left-pane, #center-pane, #right-pane {
+        color: #000;
+        background-color: #fff;
+        min-height: 700px;
+    }
+
+    .pane-content {
+        padding: 0 10px;
+    }
+
+    .k-card {
+        cursor: pointer;
+    }
+
+    .k-chart {
+        height: 300px;
+    }
+</style>
+<div id="top-content">
+    <div style="display:inline-block;">
+        <label style="font-weight:700;display:block;padding-top:40px;">Total Files:  @ViewBag.TotalFiles</label>
+        <ul class="fieldlist" style="display:block">
+            <li>
+                @(Html.Kendo().CheckBox().Name("eq2").HtmlAttributes(new { @class = "timeline" })
+                .Checked(true).Label("Images")) @ViewBag.Images (@ViewBag.ImagesPrecent %)
+            </li>
+            <li>
+                @(Html.Kendo().CheckBox().Name("eq3").HtmlAttributes(new { @class = "timeline" })
+                .Checked(true).Label("Videos")) @ViewBag.Videos (@ViewBag.VideosPrecent %)
+            </li>
+            <li>
+                @(Html.Kendo().CheckBox().Name("eq4").HtmlAttributes(new { @class = "timeline" })
+                .Checked(true).Label("Other")) @ViewBag.Other (@ViewBag.OtherPrecent %)
+            </li>
+        </ul>
+        <ul class="fieldlist" style="display:block; margin-top:30px;">
+            <li>
+                @(Html.Kendo().CheckBox().Name("eq5").HtmlAttributes(new { @class = "timeline" })
+                .Checked(true).Label("No create date")) @ViewBag.NoDate (@ViewBag.NoDatePrecent %)
+            </li>
+        </ul>
+    </div>
+    <div style="display:inline-block">
+        @(Html.Kendo().Chart()
+        .Name("chart1")
+        .ChartArea(chartArea => chartArea
+            .Background("transparent"))
+        .Title(title => title
+            .Position(ChartTitlePosition.Bottom)
+        )
+        .Legend(legend => legend
+            .Visible(false)
+        )
+        .SeriesDefaults(series =>
+            series.Donut().StartAngle(150)
+        )
+        .Series(series =>
+        {
+            series.Donut(new dynamic[] {
+             new { category = "With Date", value = ViewBag.WithDatePrecent, color = "#9de219" },
+             new { category = "No Date", value = ViewBag.NoDatePrecent, color = "#068c35" }
+            })
+            .Name("ByDate")
+            .Labels(labels => labels
+               .Visible(false)
+               .Position(ChartSeriesLabelsPosition.OutsideEnd)
+               .Template("#= category #: \n #= value#%")
+               .Background("transparent"));
+            series.Donut(new dynamic[] {
+                new {category="Images",value=ViewBag.ImagesPrecent,color="#9de219"},
+                new {category="Videos",value=ViewBag.VideosPrecent,color="#90cc38"},
+                new {category="Other",value=ViewBag.OtherPrecent,color="#068c35"}
+            })
+            .Name("ByType")
+            .Labels(labels => labels
+                .Visible(false)
+                .Position(ChartSeriesLabelsPosition.OutsideEnd)
+                .Template("#= category #: \n #= value#%")
+                .Background("transparent")
+            );
+        })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category # (#= series.name #): #= value #%")
+        )
+       )
+    </div>
+
+    <div style="display:inline-block">
+        @(Html.Kendo().Chart()
+            .Name("chart2")
+            .Legend(legend => legend
+                .Visible(false)
+            )
+            .ChartArea(chart => chart
+                .Background("transparent")
+                )
+            .Series(series => {
+                series.Pie(new dynamic[] {
+                    new {category="Image JPEG",value=ViewBag.Img0,color="#9de219"},
+                    new {category="Image JPEG EXIF",value=ViewBag.Img1,color="#6495ED"},
+                    new {category="Image PNG",value=ViewBag.Img2,color="#FF7F50"},
+                    new {category="Image GIF",value=ViewBag.Img3,color="#8FBC8F"},
+                    new {category="Video Riff Avi",value=ViewBag.Vid0,color="#00CED1"},
+                    new {category="Video Windows Media",value=ViewBag.Vid1,color="#7CFC00"},
+                    new {category="Video MPEG",value=ViewBag.Vid2,color="#20B2AA"},
+                    new {category="Other files",value=ViewBag.Other,color="#90EE90"}
+                })
+                .Labels(labels => labels
+                    .Template("#= category #: \n #= value#%")
+                    .Position(ChartSeriesLabelsPosition.OutsideEnd)
+                    .Background("transparent")
+                    .Visible(false)
+                )
+                .StartAngle(150);
+            })
+            .Tooltip(tooltip => tooltip
+                .Visible(true)
+                .Template("#= category # : #= value #")
+            )
+        )
+    </div>
+
+    <div style="display:inline-block; word-wrap:break-word;">
+        'Phone Status' filter is related to the 'Phone Status'<br />
+        Users must be logged in to a physical phone device<br />
+        Click to learn more about logging in to a phone device.  <br />
+        Soft phones are not supported for click to.<br />
+        Click to learn more about logging in to a phone device.  <br />
+        Soft phones are not supported for click to.
+    </div>
+    <div style="display:inline-block;vertical-align:top;">
+        <a asp-controller="Help" asp-action="Index"><span class="k-icon k-icon-new k-i-question"></span></a>
+    </div>
+</div>
+<div class="box-col" style="display:block;text-align:center;">
+    <label style="margin-left:40px;">Path prefix to remove</label>
+    <ul class="form-group">
+        <li style="display:inline-block;">
+            @(Html.Kendo().TextBox()
+                        .Name("textbox")
+                        .HtmlAttributes(new { style = "width: 800px" })
+                    )
+        </li>
+        <li style="display:inline-block;">
+            @(Html.Kendo().Button()
+                    .Name("apply")
+                    .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                    .Content("Apply"))
+        </li>
+    </ul>
+</div>
+@(Html.Kendo().Splitter()
+    .Name("vertical")
+    .Orientation(SplitterOrientation.Vertical)
+    .Panes(verticalPanes =>
+    {
+        verticalPanes.Add()
+                .HtmlAttributes(new { id = "top-pane" })
+                .Scrollable(false)
+                .Collapsible(false)
+                .Content(
+                Html.Kendo().Splitter()
+                    .Name("horizontal")
+                    .HtmlAttributes(new { style = "height: 100%;" })
+                    .Panes(horizontalPanes =>
+                    {
+                    horizontalPanes.Add()
+                    .HtmlAttributes(new { id = "left-pane" })
+                    .Size("1000px")
+                    .Collapsible(true)
+                    .Content(@<div class="demo-section k-content wide" id="timeline">
+                                </div>);
+                    horizontalPanes.Add()
+                        .HtmlAttributes(new { id = "right-pane" })
+                        .Content(@<div class="pane-content">
+                                    <div id="grid"></div>
+                                </div>);
+                }).ToHtmlString()
+            );
+    })
+)
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var v1 = true;
+        var v2 = true;
+        var v3 = true;
+        var v4 = true;
+        if ($('#eq2').is(":checked")) { v1 = true; }
+        if ($('#eq3').is(":checked")) { v2 = true; }
+        if ($('#eq4').is(":checked")) { v3 = true; }
+        if ($('#eq5').is(":checked")) { v4 = true; }
+
+        var path = $("#textbox").val();
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Timeline", "LastAccessed")',
+            data: { "v1": v1, "v2": v2, "v3": v3, "v4": v4 },
+            dataType: 'html',
+            success: function (data) {
+                $('#timeline').html(data);
+                $('#grid').html();
+            },
+            error: function () {
+            }
+        });
+    });
+
+    $(document).on("click", ".k-card", function () {
+        var date = $(this).find(".k-event-title").first().text();
+        date = date.replace("created ","")
+        var v1 = false;
+        var v2 = false;
+        var v3 = false;
+        var v4 = false;
+        if ($('#eq2').is(":checked")) { v1 = true; }
+        if ($('#eq3').is(":checked")) { v2 = true; }
+        if ($('#eq4').is(":checked")) { v3 = true; }
+        if ($('#eq5').is(":checked")) { v4 = true; }
+        $("#left-pane").width("500px");
+        $(".k-splitbar").css("left", "500px");
+        $("#right-pane").css({ "left": "507px", "width": "auto" });
+
+        var path = $("#textbox").val();
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Grid", "LastAccessed")',
+            data: { "date": date, "v1": true, "v2": true, "v3": true, "path": path },
+            dataType: 'html',
+            success: function (data) {
+                $('#grid').html(data);
+            },
+            error: function () {
+            }
+        });
+    });
+
+    $(".timeline").on("change", function () {
+        var v1 = false;
+        var v2 = false;
+        var v3 = false;
+        var v4 = false;
+        if ($('#eq2').is(":checked")) { v1 = true; }
+        if ($('#eq3').is(":checked")) { v2 = true; }
+        if ($('#eq4').is(":checked")) { v3 = true; }
+        if ($('#eq5').is(":checked")) { v4 = true; }
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Timeline", "LastAccessed")',
+            data: { "v1": v1, "v2": v2, "v3": v3, "v4": v4 },
+            dataType: 'html',
+            success: function (data) {
+                $('#timeline').html(data);
+                $('#grid').html();
+            },
+            error: function () {
+            }
+        });
+    });
+</script>
